@@ -3,7 +3,7 @@
 Spring Boot Server 
 
 ## preconditions
-Java 11 (LTS): https://adoptopenjdk.net/
+Java 9. I Work with Java 11 (LTS): https://adoptopenjdk.net/
 
 
 ## Overview  

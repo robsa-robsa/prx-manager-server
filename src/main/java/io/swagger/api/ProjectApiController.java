@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-02-27T16:19:37.767Z")
 
 @Controller
@@ -40,12 +41,12 @@ public class ProjectApiController implements ProjectApi {
         this.request = request;
     }
 
-    public ResponseEntity<Void> addAction(@ApiParam(value = "ID",required=true) @PathVariable("pId") Long pId,@ApiParam(value = "a new special Action" ,required=true )  @Valid @RequestBody Action body) {
+    public ResponseEntity<Void> addAction(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId, @ApiParam(value = "a new special Action", required = true) @Valid @RequestBody Action body) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<ProjectList> addProject(@ApiParam(value = "a new special Project" ,required=true )  @Valid @RequestBody Project body) {
+    public ResponseEntity<ProjectList> addProject(@ApiParam(value = "a new special Project", required = true) @Valid @RequestBody Project body) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -59,12 +60,12 @@ public class ProjectApiController implements ProjectApi {
         return new ResponseEntity<ProjectList>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Void> deleteProject(@ApiParam(value = "ID",required=true) @PathVariable("pId") Long pId) {
+    public ResponseEntity<Void> deleteProject(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
         String accept = request.getHeader("Accept");
         return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<Project> getProject(@ApiParam(value = "ID",required=true) @PathVariable("pId") Long pId) {
+    public ResponseEntity<Project> getProject(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -78,7 +79,7 @@ public class ProjectApiController implements ProjectApi {
         return new ResponseEntity<Project>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    public ResponseEntity<ActionList> listActions(@ApiParam(value = "ID",required=true) @PathVariable("pId") Long pId) {
+    public ResponseEntity<ActionList> listActions(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
         String accept = request.getHeader("Accept");
         if (accept != null && accept.contains("application/json")) {
             try {
@@ -93,17 +94,13 @@ public class ProjectApiController implements ProjectApi {
     }
 
     public ResponseEntity<ProjectList> listProjects() {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<ProjectList>(objectMapper.readValue("{  \"list\" : [ {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  }, {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  } ]}", ProjectList.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<ProjectList>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        try {
+            return new ResponseEntity<ProjectList>(objectMapper.readValue("{  \"list\" : [ {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  }, {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  } ]}", ProjectList.class), HttpStatus.NOT_IMPLEMENTED);
+        } catch (IOException e) {
+            log.error("Couldn't serialize response for content type application/json", e);
+            return new ResponseEntity<ProjectList>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return new ResponseEntity<ProjectList>(HttpStatus.NOT_IMPLEMENTED);
     }
 
 }
