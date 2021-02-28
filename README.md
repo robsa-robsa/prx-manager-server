@@ -19,3 +19,7 @@ You can view the api documentation in swagger-ui by pointing to
 http://localhost:8080/  
 
 Change default port value in application.properties
+
+## Database:
+
+to look into the H2 database you can use :http://localhost:8080/h2-console/ with default password "password"

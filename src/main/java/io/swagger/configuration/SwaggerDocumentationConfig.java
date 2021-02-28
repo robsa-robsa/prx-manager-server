@@ -17,7 +17,7 @@ public class SwaggerDocumentationConfig {
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-            .title("Project Viewer Petstore")
+            .title("Project Viewer")
             .description("Eine kleine Demo für ein mini projektmanaagement")
             .license("")
             .licenseUrl("http://unlicense.org")
