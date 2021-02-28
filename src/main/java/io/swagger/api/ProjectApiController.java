@@ -1,18 +1,24 @@
 package io.swagger.api;
 
+import io.swagger.entity.ActionEntity;
+import io.swagger.entity.ActionRepository;
+import io.swagger.entity.ProjectEntity;
+import io.swagger.entity.ProjectRepository;
+import io.swagger.mapper.EntityMapper;
 import io.swagger.model.Action;
 import io.swagger.model.ActionList;
 import io.swagger.model.Project;
 import io.swagger.model.ProjectList;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.data.domain.Example;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -31,75 +37,92 @@ public class ProjectApiController implements ProjectApi {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectApiController.class);
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    ProjectRepository projectRepository;
+
+    @Autowired
+    ActionRepository actionRepository;
+
+    @Autowired
+    EntityMapper mapper;
 
     private final HttpServletRequest request;
+    private ProjectEntity exampleP;
 
     @org.springframework.beans.factory.annotation.Autowired
-    public ProjectApiController(ObjectMapper objectMapper, HttpServletRequest request) {
-        this.objectMapper = objectMapper;
+    public ProjectApiController(HttpServletRequest request) {
         this.request = request;
     }
 
-    public ResponseEntity<Void> addAction(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId, @ApiParam(value = "a new special Action", required = true) @Valid @RequestBody Action body) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
-    }
+    public ResponseEntity<Action> addAction(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId, @ApiParam(value = "a new special Action", required = true) @Valid @RequestBody Action body) {
 
-    public ResponseEntity<ProjectList> addProject(@ApiParam(value = "a new special Project", required = true) @Valid @RequestBody Project body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<ProjectList>(objectMapper.readValue("{  \"list\" : [ {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  }, {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  } ]}", ProjectList.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<ProjectList>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        ProjectEntity pentity = projectRepository.findOne(pId);
+        if (pentity == null) {
+            return new ResponseEntity<Action>(HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<ProjectList>(HttpStatus.NOT_IMPLEMENTED);
+        ActionEntity newEntity = mapper.mapBack(body);
+        newEntity.setProject(pentity);
+        ActionEntity entity = actionRepository.save(newEntity);
+
+        if (entity == null) {
+            return new ResponseEntity<Action>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<Action>(mapper.map(entity), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Project> addProject(@ApiParam(value = "a new special Project", required = true) @Valid @RequestBody Project body) {
+        ProjectEntity newEntity = mapper.mapBack(body);
+        ProjectEntity entity = projectRepository.save(newEntity);
+
+        if (entity == null) {
+            return new ResponseEntity<Project>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<Project>(mapper.map(entity), HttpStatus.OK);
     }
 
     public ResponseEntity<Void> deleteProject(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
-        String accept = request.getHeader("Accept");
-        return new ResponseEntity<Void>(HttpStatus.NOT_IMPLEMENTED);
+        boolean entity = projectRepository.exists(pId);
+        if (entity) {
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+
+        List<ActionEntity> actions = actionRepository.findAll(getActionsLinkExample(pId));
+
+        actionRepository.delete(actions);
+        projectRepository.delete(pId);
+
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
+    private Example<ActionEntity> getActionsLinkExample(Long pId) {
+        ActionEntity example = new ActionEntity();
+        ProjectEntity exampleP = new ProjectEntity();
+        exampleP.setId(pId);
+        example.setProject(exampleP);
+        return Example.of(example);
     }
 
     public ResponseEntity<Project> getProject(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Project>(objectMapper.readValue("{  \"name\" : \"name\",  \"description\" : \"description\",  \"id\" : 0,  \"category\" : \"category\",  \"actions\" : 6.02745618307040320615897144307382404804229736328125,  \"status\" : { }}", Project.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Project>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+
+        ProjectEntity entity = projectRepository.findOne(pId);
+        if (entity == null) {
+            return new ResponseEntity<Project>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<Project>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<Project>(mapper.map(entity), HttpStatus.OK);
     }
 
     public ResponseEntity<ActionList> listActions(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<ActionList>(objectMapper.readValue("{  \"list\" : [ {    \"members\" : 5.962133916683182377482808078639209270477294921875,    \"name\" : \"name\",    \"description\" : \"description\",    \"efford\" : 1.46581298050294517310021547018550336360931396484375,    \"id\" : 0,    \"time\" : \"2000-01-23T04:56:07.000+00:00\",    \"projectId\" : 6  }, {    \"members\" : 5.962133916683182377482808078639209270477294921875,    \"name\" : \"name\",    \"description\" : \"description\",    \"efford\" : 1.46581298050294517310021547018550336360931396484375,    \"id\" : 0,    \"time\" : \"2000-01-23T04:56:07.000+00:00\",    \"projectId\" : 6  } ]}", ActionList.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<ActionList>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-        return new ResponseEntity<ActionList>(HttpStatus.NOT_IMPLEMENTED);
+        List<ActionEntity> entities = actionRepository.findAll(getActionsLinkExample(pId));
+        return new ResponseEntity<ActionList>(mapper.mapActions(entities), HttpStatus.OK);
     }
 
     public ResponseEntity<ProjectList> listProjects() {
-        try {
-            return new ResponseEntity<ProjectList>(objectMapper.readValue("{  \"list\" : [ {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  }, {    \"name\" : \"name\",    \"description\" : \"description\",    \"id\" : 0,    \"category\" : \"category\",    \"actions\" : 6.02745618307040320615897144307382404804229736328125,    \"status\" : { }  } ]}", ProjectList.class), HttpStatus.NOT_IMPLEMENTED);
-        } catch (IOException e) {
-            log.error("Couldn't serialize response for content type application/json", e);
-            return new ResponseEntity<ProjectList>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<ProjectEntity> entities = projectRepository.findAll();
+        return new ResponseEntity<ProjectList>(mapper.mapList(entities), HttpStatus.OK);
 
     }
 

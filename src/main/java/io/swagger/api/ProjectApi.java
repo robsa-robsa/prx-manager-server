@@ -36,18 +36,19 @@ public interface ProjectApi {
             @ApiResponse(code = 204, message = "successful operation")})
     @RequestMapping(value = "/project/{pId}/action",
             consumes = {"application/json"},
+            produces = {"application/json"},
             method = RequestMethod.POST)
-    ResponseEntity<Void> addAction(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId, @ApiParam(value = "a new special Action", required = true) @Valid @RequestBody Action body);
+    ResponseEntity<Action> addAction(@ApiParam(value = "ID", required = true) @PathVariable("pId") Long pId, @ApiParam(value = "a new special Action", required = true) @Valid @RequestBody Action body);
 
 
     @ApiOperation(value = "", nickname = "addProject", notes = "We add a new Project", response = ProjectList.class, tags = {"demo",})
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "success", response = ProjectList.class)})
     @RequestMapping(value = "/project",
-            produces = {"application/json"},
             consumes = {"application/json"},
+            produces = {"application/json"},
             method = RequestMethod.POST)
-    ResponseEntity<ProjectList> addProject(@ApiParam(value = "a new special Project", required = true) @Valid @RequestBody Project body);
+    ResponseEntity<Project> addProject(@ApiParam(value = "a new special Project", required = true) @Valid @RequestBody Project body);
 
 
     @ApiOperation(value = "", nickname = "deleteProject", notes = "Delete it", tags = {"demo",})

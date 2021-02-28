@@ -1,17 +1,12 @@
 package io.swagger.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
 import org.threeten.bp.OffsetDateTime;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * Action DB
@@ -23,7 +18,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Action {
+public class ActionEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
@@ -38,7 +33,7 @@ public class Action {
   private OffsetDateTime time;
 
   @ManyToOne
-  private Project project;
+  private ProjectEntity project;
 
   @Column(name = "efford")
   private BigDecimal efford;
